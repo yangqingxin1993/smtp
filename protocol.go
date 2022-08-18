@@ -246,6 +246,8 @@ func (proto *Protocol) Command(command *Command) (reply *Reply) {
 			return proto.HELO(command.args)
 		case "EHLO":
 			return proto.EHLO(command.args)
+		case "XCLIENT":
+			return proto.XCLIENT(command.args)
 		case "STARTTLS":
 			return proto.STARTTLS(command.args)
 		default:
@@ -420,7 +422,7 @@ func (proto *Protocol) EHLO(args string) (reply *Reply) {
 	proto.logf("Got EHLO command, switching to MAIL state")
 	proto.State = MAIL
 	proto.Message.Helo = args
-	replyArgs := []string{"Hello " + args, "PIPELINING"}
+	replyArgs := []string{"Hello " + args, "PIPELINING", "XCLIENT"}
 
 	if proto.TLSHandler != nil && !proto.TLSPending && !proto.TLSUpgraded {
 		replyArgs = append(replyArgs, "STARTTLS")
@@ -435,6 +437,13 @@ func (proto *Protocol) EHLO(args string) (reply *Reply) {
 		}
 	}
 	return ReplyOk(replyArgs...)
+}
+
+// EHLO creates a reply to a EHLO command
+func (proto *Protocol) XCLIENT(args string) (reply *Reply) {
+	proto.logf("Got XCLIENT command, " + args)
+
+	return ReplyOk("mock xclient")
 }
 
 // STARTTLS creates a reply to a STARTTLS command
